@@ -1,3 +1,9 @@
+# Table Of Contents
+
+[Basic Installation & Usage](#basic) <br>
+[Type Relation](#type-relation)<br>
+[Return all objects](#all-objects)<br>
+
 # Introduction to GraphQL
 GraphQL is a powerful query language for your API, and it provides a more efficient, powerful, and flexible alternative to the traditional REST API. In this document, we'll introduce you to the key concepts of GraphQL and how it works.
 
@@ -12,14 +18,16 @@ GraphQL is based on a strong schema that defines the types and operations availa
 
 This README will guide you through the process of setting up a GraphQL server on the backend using Node.js, Express, and the graphql-express package. GraphQL is a powerful query language that allows you to request and deliver data with precision, and this setup will enable you to create a flexible API.
 
-## Prerequisites
+# Prerequisites
 
 Before you get started, ensure you have the following prerequisites:
 
 - Node.js installed on your machine.
 - A basic understanding of JavaScript and Express.
 
-## Basic Installation & Usage
+<a name='basic'></a>
+
+# Basic Installation & Usage
 
 1. **Create a New Node.js Project**: If you don't already have a Node.js project, create a new directory for your project and run `npm init` to initialize a new Node.js project.
 
@@ -105,3 +113,104 @@ app.listen(4000, () => {
 ```
 8. Testing Your Queries in GrapiQL: You can access the `/graphql` endpoint in your browser, and the interface will be like this:
 ![graphiql demonstration](/images/graphiql-example1.png)
+
+<a name='type-relation'></a>
+
+# Type Relations
+In GraphQL, `type relations` refer to the relationships between different types in your schema. These relationships define how data is connected and how clients can query for related information. For this example we will be used the scenario about how the books connected to the authors. where logically the book have it own author.
+```js
+// we added new property named authorId, due to the demonstration of how type relations work!
+const books = [
+    { name: 'Name of thw Wind', genre: 'Fantasy', id: '1', authorId: '1' },
+    { name: 'The Final Empire', genre: 'Fantasy', id: '2', authorId: '2' },
+    { name: 'The Long Earth', genre: 'Sci-Fi', id: '3', authorId: '3' },
+];
+
+const BookType = new GraphQLObjectType({
+    name: 'book',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        author: {
+            type: AuthorType,
+            resolve(parent, args) {
+                return authors.filter(object => object.id === parent.authorId)[0]
+            }
+        }
+    })
+});
+```
+- In the BookType, there is a field named "author," of type AuthorType. This field represents the relationship between a book and its author.
+- The resolve function for the `author` field is responsible for fetching and returning the author information associated with a book. It uses the authorId field of the book to look up the corresponding author from the authors array by using the `parent` parameter.
+- In this context, the `parent` parameter refers to the object currently being processed, which is the object that has the "author" field being fetched. In other words, parent is a representation of the BookType object that is currently being examined by GraphQL when executing the resolution for the `authors` field.
+- Before `author` field is executed, the BookType object has some result. the result from BookType are return to the parent parameter in `author` field
+    ![type relation](/images/type-relation.png)
+    above the redline is where the data has been processed by the graphql. and the processed data will be return to the `parent` author field.
+
+## List Type
+So far we have already built the relationship between the book and who is the author from the book. Now we want to build the relationship between the author and the book. we want to know if some author are called trough the request, we want to know what books they are created. in other words we call it `one to many` relationship if we are on the relational database environment, which is one author can have many books they created. Below is the example of how to implement it in GraphQL:
+```js
+// we added additional object for the one to many relationship display purposes.
+const books = [
+    { name: 'Name of thw Wind', genre: 'Fantasy', id: '1', authorId: '1' },
+    { name: 'The Final Empire', genre: 'Fantasy', id: '2', authorId: '2' },
+    { name: 'The Long Earth', genre: 'Sci-Fi', id: '3', authorId: '3' },
+    { name: 'The Hero Of Ages', genre: 'Fantasy', id: '4', authorId: '2' },
+    { name: 'The Colourof Magic', genre: 'Fantasy', id: '5', authorId: '3' },
+    { name: 'The Loght Fantastic', genre: 'Fantasy', id: '6', authorId: '3' }
+];
+
+const authors = [
+    { name: 'Patrick Bateman', age: 29, id: '1' },
+    { name: 'Bruce Wayne', age: 33, id: '2' },
+    { name: 'Peter Parker', age: 25, id: '3' }
+]
+
+const AuthorType = new GraphQLObjectType({
+    name: 'author',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        book: {
+            type: new GraphQLList(BookType),
+            resolve(parent, args) {
+                return books.filter(object => object.authorId === parent.id)
+            }
+        }
+    })
+});
+```
+- In above code, dont forget that we are going to return multiple object from the book fields, which we are need the `GraphQLList` imported from the `graphql` instance.
+- we are returning the processed data from the authorType. This data will be processed again in resolve function book field.
+- the result query if we success build this one to many relations:
+    ![type-relation-lsit](/images/type-list.png)
+
+<a name='all-objects'></a>
+
+# All Objects
+For some cases, we need to return all list of books, or all list of author that we want to the client. To do this we just added some field in the `RootQuery` of our Schema:
+```js
+const RootQuery = new GraphQLObjectType({
+    name: 'RootQueryType',
+    fields: {
+        ...,
+        ...,
+        books: {
+            type: new GraphQLList(BookType),
+            resolve(_parent, _args) {
+                return books
+            }
+        },
+        authors: {
+            type: new GraphQLList(AuthorType),
+            resolve(_parent, _args) {
+                return authors
+            }
+        }
+    }
+});
+```
+- The result output from the `graphiql` will be like this:
+    ![result of returned all object](/images/all-objects.png)
