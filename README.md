@@ -87,3 +87,19 @@ Before you get started, ensure you have the following prerequisites:
     query: RootQuery
     });
     ```
+
+6. Set Up GraphQL Middleware to your app.js: Use the graphqlHTTP middleware to create a GraphQL endpoint for your Express app.
+```js
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    graphiql: true
+}))
+```
+by using the `graphiql` property to your middleware, the backend service will provide the graphql development interface that can be access for demo and simulate accessing the different variant of our http request.
+
+7. Start the Server: Start the Express server on a port of your choice.
+```js
+app.listen(4000, () => {
+    console.log(`Now Listening on Post 4000`)
+})
+```
