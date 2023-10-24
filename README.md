@@ -70,17 +70,17 @@ Before you get started, ensure you have the following prerequisites:
         });
         ```
         This code is defining a RootQuery type in GraphQL, which serves as the entry point for querying data in the schema.
-        1. const RootQuery = new GraphQLObjectType({ ... }): This line creates a new GraphQL Object Type called RootQuery. The RootQuery type is special in GraphQL, as it is the starting point for all read (query) operations. It defines the fields that clients can query from the root of the schema.
-        2. name: 'RootQueryType': This sets the name for the RootQueryType. In this case, it's named "RootQueryType."
-        3. fields: { ... }: Here, you define the available fields within the RootQuery. Each field represents a possible query that clients can make.
-        4. book: { ... }: This defines a field called "book" within the RootQuery. Clients can use this field to query information about books.
-        5. type: BookType: The type field specifies the data type that will be returned by the "book" query. In this case, it's set to the BookType, indicating that when a client queries "book," they will receive data structured according to the BookType.
-        6. args: { id: { type: GraphQLString } }: The args field specifies the arguments that can be provided with the "book" query. In this case, there's one argument named "id," which is of type GraphQLString. It means that clients need to provide an "id" when querying for a book.
-        7. resolve(parent, args) { ... }: The resolve function is where you specify how to fetch the actual data when a client makes a query for "book." The function takes two parameters:
-            - parent: This parameter is rarely used in queries and typically represents the parent object when working with nested queries. In this case, it's not used.
-            - args: This parameter contains the arguments provided by the client. In this code, it includes the "id" passed by the client.
+        1. `const RootQuery = new GraphQLObjectType({ ... })`: This line creates a new GraphQL Object Type called RootQuery. The RootQuery type is special in GraphQL, as it is the starting point for all read (query) operations. It defines the fields that clients can query from the root of the schema.
+        2. `name`: 'RootQueryType': This sets the name for the RootQueryType. In this case, it's named "RootQueryType."
+        3. `fields`: { ... }: Here, you define the available fields within the RootQuery. Each field represents a possible query that clients can make.
+        4. `book: { ... }`: This defines a field called "book" within the RootQuery. Clients can use this field to query information about books.
+        5. `type`: BookType: The type field specifies the data type that will be returned by the "book" query. In this case, it's set to the BookType, indicating that when a client queries "book," they will receive data structured according to the BookType.
+        6. `args`: { id: { type: GraphQLString } }: The args field specifies the arguments that can be provided with the "book" query. In this case, there's one argument named "id," which is of type GraphQLString. It means that clients need to provide an "id" when querying for a book.
+        7. `resolve(parent, args) { ... }`: The resolve function is where you specify how to fetch the actual data when a client makes a query for "book." The function takes two parameters:
+            - `parent`: This parameter is rarely used in queries and typically represents the parent object when working with nested queries. In this case, it's not used.
+            - `args`: This parameter contains the arguments provided by the client. In this code, it includes the "id" passed by the client.
             return books.filter(object => object.id === args.id)[0]: Within the resolve function, you see code to fetch the data. In this case, it's looking through an array called "books" to find a book with an "id" that matches the one provided by the client. The filter method is used to find the matching book, and [0] is added to return the first matching result. This result will be returned to the client in the shape of a BookType.
-        8. return books.filter(object => object.id === args.id)[0]: Within the resolve function, you see code to fetch the data. In this case, it's looking through an array called "books" to find a book with an "id" that matches the one provided by the client. The filter method is used to find the matching book, and [0] is added to return the first matching result. This result will be returned to the client in the shape of a BookType.
+        8. `return books.filter(object => object.id === args.id)[0]`: Within the resolve function, you see code to fetch the data. In this case, it's looking through an array called "books" to find a book with an "id" that matches the one provided by the client. The filter method is used to find the matching book, and [0] is added to return the first matching result. This result will be returned to the client in the shape of a BookType.
     - Finally, the code exports a new GraphQLSchema instance with the RootQuery as the query root. This makes the book query available for use in your GraphQL API.
     ```js
     module.exports = new GraphQLSchema({
@@ -103,3 +103,5 @@ app.listen(4000, () => {
     console.log(`Now Listening on Post 4000`)
 })
 ```
+8. Testing Your Queries in GrapiQL: You can access the `/graphql` endpoint in your browser, and the interface will be like this:
+![graphiql demonstration](/images/graphiql-example1.png)
